@@ -25,7 +25,8 @@ public class Bot
                 _token,
                 EnumSet.of(
                     GatewayIntent.GUILD_MESSAGES,
-                    GatewayIntent.MESSAGE_CONTENT));
+                    GatewayIntent.MESSAGE_CONTENT,
+                    GatewayIntent.GUILD_MEMBERS));
 
             _listeners.forEach(listener -> builder.addEventListeners(listener));
 

@@ -1,7 +1,8 @@
-package com.bot.commands;
+package com.bot.commands.gamecommands;
 
 import java.util.Optional;
 
+import com.bot.commands.ICommand;
 import com.bot.game.service.UnidadService;
 
 import lombok.RequiredArgsConstructor;

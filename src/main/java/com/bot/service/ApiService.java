@@ -1,4 +1,4 @@
-package com.bot.game.service;
+package com.bot.service;
 
 import java.io.IOException;
 

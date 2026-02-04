@@ -2,11 +2,14 @@ package com.bot;
 
 import java.util.List;
 
-import com.bot.commands.CreateUnitCommand;
-import com.bot.commands.DeleteUnitByDiscordIdCommand;
-import com.bot.commands.UnitListCommand;
+import com.bot.admin.service.AdminService;
+import com.bot.commands.admincommands.SyncUserCommand;
+import com.bot.commands.gamecommands.CreateUnitCommand;
+import com.bot.commands.gamecommands.DeleteUnitByDiscordIdCommand;
+import com.bot.commands.gamecommands.UnitListCommand;
 import com.bot.dispatcher.CommandDispatcher;
 import com.bot.game.service.UnidadService;
+import com.bot.listeners.MemberJoinedtoGuildListener;
 import com.bot.listeners.MessageReceiveListener;
 
 import io.github.cdimascio.dotenv.Dotenv;
@@ -18,16 +21,20 @@ public class Main
     {
         Dotenv dotenv = Dotenv.load();
         String token = dotenv.get("DISCORD_TOKEN");
+        String ownerId = dotenv.get("DISCORD_OWNER_ID");
 
         UnidadService unidadService = new UnidadService();
+        AdminService adminService = new AdminService();
 
         List<ListenerAdapter> listeners = List.of(
             MessageReceiveListener.builder()
                 ._commandDispatcher(new CommandDispatcher()
                     .register(new CreateUnitCommand(unidadService))
                     .register(new UnitListCommand(unidadService))
-                    .register(new DeleteUnitByDiscordIdCommand(unidadService)))
-                .build()
+                    .register(new DeleteUnitByDiscordIdCommand(unidadService))
+                    .register(new SyncUserCommand(ownerId, adminService)))
+                .build(),
+            new MemberJoinedtoGuildListener(adminService)
         );
 
         Bot bot = new Bot(token, listeners);
