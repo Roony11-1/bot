@@ -27,6 +27,9 @@ public class UserDTO
 
     private Instant joinedAt;
     private Instant lastSync;
+    private Instant lastMenssageAt;
+
+    private int messageCount;
 
     @Override
     public String toString() 
@@ -46,7 +49,10 @@ public class UserDTO
                 .append("Es Owner          : ").append(isOwner ? "Sí" : "No").append("\n")
                 .append("Es Admin          : ").append(isAdmin ? "Sí" : "No").append("\n")
                 .append("Fecha de unión    : ").append(joinedAt).append("\n")
-                .append("Última sync       : ").append(lastSync).append("\n");
+                .append("Última sync       : ").append(lastSync).append("\n")
+                .append("Último mensaje    : ").append(lastMenssageAt).append("\n")
+                .append("Cantidad mensajes : ").append(messageCount).append("\n")
+                .append("--------------------------------------------");
 
         return sb.toString();
     }

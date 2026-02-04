@@ -1,5 +1,6 @@
 package com.bot.admin.service;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 
@@ -11,7 +12,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 
-import net.dv8tion.jda.api.entities.User;
 import okhttp3.HttpUrl;
 import okhttp3.OkHttpClient;
 import okhttp3.RequestBody;
@@ -38,6 +38,49 @@ public class AdminService extends ApiService<UserDTO>
         return "users";
     }
 
+    public Optional<UserDTO> findByDiscordIdAndServerId(String discordId, String serverId)
+    {
+        try 
+        {
+            HttpUrl httpUrl = baseUrl()
+                .addQueryParameter("discordId", discordId)
+                .addQueryParameter("serverId", serverId)
+                .build();
+
+            try (Response response = get(httpUrl))
+            {
+                if (!response.isSuccessful()) 
+                {
+                    System.out.println("Error al buscar usuario: " + response.code());
+                    return Optional.empty();
+                }
+
+                UserDTO user = read(response, new TypeReference<UserDTO>() {});
+
+                return Optional.ofNullable(user);
+            }
+        } 
+        catch (Exception e) 
+        {
+            e.printStackTrace();
+            return Optional.empty();
+        }
+    }
+
+    public Optional<UserDTO> updateMessageStats(String discordId, String serverId, Instant lastMessageAt)
+    {
+        UserDTO user = findByDiscordIdAndServerId(discordId, serverId)
+            .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+
+            user.setLastMenssageAt(lastMessageAt);
+            user.setMessageCount(user.getMessageCount() + 1);
+
+        UserDTO updatedUser = save(user).orElseThrow(() -> new RuntimeException("Error al actualizar usuario"));
+
+        return Optional.of(updatedUser);
+        
+    }
+
     public Optional<UserDTO> save(UserDTO user) 
     {
         try 
@@ -56,7 +99,7 @@ public class AdminService extends ApiService<UserDTO>
                 }
 
                 UserDTO savedUser = read(response, new TypeReference<UserDTO>() {});
-                
+
                 return Optional.ofNullable(savedUser);
             }
         } 

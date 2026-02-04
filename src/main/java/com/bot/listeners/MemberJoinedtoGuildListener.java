@@ -15,16 +15,36 @@ public class MemberJoinedtoGuildListener extends ListenerAdapter
 {
     private final AdminService _adminService;
 
-    @Override
-    public void onGuildMemberJoin(GuildMemberJoinEvent event)
-    {
-        Member member = event.getMember();
-        User user = event.getUser();
+@Override
+public void onGuildMemberJoin(GuildMemberJoinEvent event) {
+    Member member = event.getMember();
+    User user = event.getUser();
 
-        // Construir DTO o entidad
-        UserDTO userDTO = UserDTO.builder()
-                .discordId(user.getId())
-                .serverId(event.getGuild().getId())
+    String discordId = user.getId();
+    String serverId = event.getGuild().getId();
+
+    // Buscar usuario existente
+    UserDTO existingUser = _adminService.findByDiscordIdAndServerId(discordId, serverId)
+            .orElse(null);
+
+    UserDTO userDTO;
+    if (existingUser != null) 
+    {
+        // Actualizar info básica pero mantener messageCount y lastMessageAt
+        existingUser.setUsername(user.getName());
+        existingUser.setGlobalName(user.getGlobalName());
+        existingUser.setNickname(member.getNickname());
+        existingUser.setBot(user.isBot());
+        existingUser.setOwner(event.getGuild().getOwnerId().equals(user.getId()));
+        existingUser.setAdmin(member.hasPermission(Permission.ADMINISTRATOR));
+        existingUser.setJoinedAt(member.getTimeJoined().toInstant());
+        userDTO = existingUser;
+    } 
+    else 
+    {
+        userDTO = UserDTO.builder()
+                .discordId(discordId)
+                .serverId(serverId)
                 .username(user.getName())
                 .globalName(user.getGlobalName())
                 .nickname(member.getNickname())
@@ -33,16 +53,14 @@ public class MemberJoinedtoGuildListener extends ListenerAdapter
                 .isAdmin(member.hasPermission(Permission.ADMINISTRATOR))
                 .joinedAt(member.getTimeJoined().toInstant())
                 .lastSync(null)
+                .lastMenssageAt(null)
+                .messageCount(0)
                 .build();
-
-        UserDTO savedUser = _adminService.save(userDTO)
-                .orElseThrow(() -> new RuntimeException("Error saving user"));
-
-        StringBuilder sb = new StringBuilder();
-
-        sb.append("Nuevo miembro unido al servidor:\n");
-        sb.append(savedUser.toString()).append("\n").append("========");
-
-        System.out.println(sb.toString());
     }
+
+    UserDTO savedUser = _adminService.save(userDTO)
+            .orElseThrow(() -> new RuntimeException("Error saving user"));
+
+    System.out.println("Nuevo miembro unido al servidor:\n" + savedUser);
+}
 }
