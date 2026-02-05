@@ -12,11 +12,13 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 
+import lombok.extern.slf4j.Slf4j;
 import okhttp3.HttpUrl;
 import okhttp3.OkHttpClient;
 import okhttp3.RequestBody;
 import okhttp3.Response;
 
+@Slf4j
 public class AdminService extends ApiService<UserDTO>
 {
     public AdminService()
@@ -51,7 +53,8 @@ public class AdminService extends ApiService<UserDTO>
             {
                 if (!response.isSuccessful()) 
                 {
-                    System.out.println("Error al buscar usuario: " + response.code());
+                    log.warn("Error al buscar usuario: {}", response.code());
+
                     return Optional.empty();
                 }
 
@@ -78,7 +81,6 @@ public class AdminService extends ApiService<UserDTO>
         UserDTO updatedUser = save(user).orElseThrow(() -> new RuntimeException("Error al actualizar usuario"));
 
         return Optional.of(updatedUser);
-        
     }
 
     public Optional<UserDTO> save(UserDTO user) 
@@ -94,7 +96,7 @@ public class AdminService extends ApiService<UserDTO>
             {
                 if (!response.isSuccessful()) 
                 {
-                    System.out.println("Error al guardar usuario: " + response.code());
+                    log.error("Error al guardar usuario: {}", response.code());
                     return Optional.empty();
                 }
 
@@ -125,7 +127,10 @@ public class AdminService extends ApiService<UserDTO>
             try (okhttp3.Response response = post(httpUrl, requestBody))
             {
                 if (!response.isSuccessful())
+                {
+                    log.error("Error al guardar usuarios en bulk: {}", response.code());
                     return List.of();
+                }
 
                 return read(response, new TypeReference<List<UserDTO>>() {});
             } 

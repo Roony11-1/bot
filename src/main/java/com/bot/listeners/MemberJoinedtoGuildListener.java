@@ -5,8 +5,6 @@ import com.bot.admin.service.AdminService;
 
 import lombok.RequiredArgsConstructor;
 import net.dv8tion.jda.api.Permission;
-import net.dv8tion.jda.api.entities.Member;
-import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.guild.member.GuildMemberJoinEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 
@@ -15,52 +13,58 @@ public class MemberJoinedtoGuildListener extends ListenerAdapter
 {
     private final AdminService _adminService;
 
-@Override
-public void onGuildMemberJoin(GuildMemberJoinEvent event) {
-    Member member = event.getMember();
-    User user = event.getUser();
-
-    String discordId = user.getId();
-    String serverId = event.getGuild().getId();
-
-    // Buscar usuario existente
-    UserDTO existingUser = _adminService.findByDiscordIdAndServerId(discordId, serverId)
-            .orElse(null);
-
-    UserDTO userDTO;
-    if (existingUser != null) 
+    @Override
+    public void onGuildMemberJoin(GuildMemberJoinEvent event) 
     {
-        // Actualizar info básica pero mantener messageCount y lastMessageAt
-        existingUser.setUsername(user.getName());
-        existingUser.setGlobalName(user.getGlobalName());
-        existingUser.setNickname(member.getNickname());
-        existingUser.setBot(user.isBot());
-        existingUser.setOwner(event.getGuild().getOwnerId().equals(user.getId()));
-        existingUser.setAdmin(member.hasPermission(Permission.ADMINISTRATOR));
-        existingUser.setJoinedAt(member.getTimeJoined().toInstant());
-        userDTO = existingUser;
-    } 
-    else 
+        String discordId = event.getUser().getId();
+        String serverId = event.getGuild().getId();
+
+        // Buscar usuario existente
+        UserDTO userDTO = _adminService
+                .findByDiscordIdAndServerId(discordId, serverId)
+                .map(existing -> updateExistingUser(existing, event)) // Si existes acutializamos
+                .orElseGet(() -> createUser(event)); // Si no creamos
+
+        UserDTO savedUser = _adminService.save(userDTO)
+                .orElseThrow(() -> new RuntimeException("Error al guardar el usuario de discordId: " + discordId + " en el servidor: " + serverId));
+
+        System.out.println("Nuevo miembro unido al servidor:\n" + savedUser.toString());
+    }
+
+    private boolean isOwner(GuildMemberJoinEvent event)
     {
-        userDTO = UserDTO.builder()
-                .discordId(discordId)
-                .serverId(serverId)
-                .username(user.getName())
-                .globalName(user.getGlobalName())
-                .nickname(member.getNickname())
-                .isBot(user.isBot())
-                .isOwner(event.getGuild().getOwnerId().equals(user.getId()))
-                .isAdmin(member.hasPermission(Permission.ADMINISTRATOR))
-                .joinedAt(member.getTimeJoined().toInstant())
+        return event.getGuild().getOwnerId() != null
+            && event.getGuild().getOwnerId().equals(event.getUser().getId());
+    }
+
+    private UserDTO updateExistingUser(UserDTO existingUser, GuildMemberJoinEvent event)
+    {
+        existingUser.setUsername(event.getUser().getName());
+        existingUser.setGlobalName(event.getUser().getGlobalName());
+        existingUser.setNickname(event.getMember().getNickname());
+        existingUser.setBot(event.getUser().isBot());
+        existingUser.setOwner(isOwner(event));
+        existingUser.setAdmin(event.getMember().hasPermission(Permission.ADMINISTRATOR));
+        existingUser.setJoinedAt(event.getMember().getTimeJoined().toInstant());
+
+        return existingUser;
+    }
+
+    private UserDTO createUser(GuildMemberJoinEvent event)
+    {
+        return UserDTO.builder()
+                .discordId(event.getUser().getId())
+                .serverId(event.getGuild().getId())
+                .username(event.getUser().getName())
+                .globalName(event.getUser().getGlobalName())
+                .nickname(event.getMember().getNickname())
+                .isBot(event.getUser().isBot())
+                .isOwner(isOwner(event))
+                .isAdmin(event.getMember().hasPermission(Permission.ADMINISTRATOR))
+                .joinedAt(event.getMember().getTimeJoined().toInstant())
                 .lastSync(null)
                 .lastMenssageAt(null)
                 .messageCount(0)
                 .build();
     }
-
-    UserDTO savedUser = _adminService.save(userDTO)
-            .orElseThrow(() -> new RuntimeException("Error saving user"));
-
-    System.out.println("Nuevo miembro unido al servidor:\n" + savedUser);
-}
 }

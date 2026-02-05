@@ -4,11 +4,13 @@ import java.util.EnumSet;
 import java.util.List;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.requests.GatewayIntent;
 
 @RequiredArgsConstructor
+@Slf4j
 public class Bot 
 {
     private final String _token;
@@ -34,7 +36,7 @@ public class Bot
         } 
         catch (Exception e) 
         {
-            e.printStackTrace();
+            log.error("Error al iniciar el bot", e);
         }
     }
 }

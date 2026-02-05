@@ -32,20 +32,22 @@ public class CommandDispatcher
 
         // Ejecutar comando si existe
         ICommand command = _commands.get(parts[0]);
-        if (command != null) {
+        
+        if (command != null) 
             command.execute(parts, event);
-        }
 
-        // Ejecutar hooks de mensaje (persistencia, métricas, etc.)
+        executeMessageHooks(event);
+    }
+
+    private void executeMessageHooks(MessageReceivedEvent event)
+    {
         String discordId = event.getAuthor().getId();
         String serverId = event.isFromGuild() ? event.getGuild().getId() : null;
-        if (serverId != null) 
-        {
-            for (IMessageHook hook : _messageHooks) 
-            {
-                hook.onMessageReceived(discordId, serverId);
-            }
-        }
+
+        if (serverId == null)
+            return;
+
+        _messageHooks.forEach(hook -> hook.onMessageReceived(discordId, serverId));
     }
 
     @FunctionalInterface

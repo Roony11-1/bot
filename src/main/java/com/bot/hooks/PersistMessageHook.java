@@ -5,10 +5,12 @@ import com.bot.admin.service.AdminService;
 import com.bot.dispatcher.CommandDispatcher;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 import java.time.Instant;
 
 @RequiredArgsConstructor
+@Slf4j
 public class PersistMessageHook implements CommandDispatcher.IMessageHook
 {
     private final AdminService _adminService;
@@ -22,8 +24,11 @@ public class PersistMessageHook implements CommandDispatcher.IMessageHook
         } 
         catch (Exception e) 
         {
-            System.err.println("Error persisting message for " + discordId + ": " + e.getMessage());
-            e.printStackTrace();
+            log.error(
+                "Error actualizando estadísticas de mensajes. discordId={}, serverId={}",
+                discordId,
+                serverId,
+                e);
         }
     }
 }

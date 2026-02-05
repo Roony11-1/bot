@@ -57,10 +57,8 @@ public class UnitListCommand implements ICommand
             return;
         }
 
-        for (Unidad unidad : unidades) 
-        {
-            message.append(unidad.toString()).append("\n");
-        }
+        unidades.forEach(unidad -> message.append(unidad.toString()).append("\n"));
+        
         event.getChannel().sendMessage(message.toString()).queue();
     }
 }

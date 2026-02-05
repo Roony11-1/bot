@@ -7,9 +7,11 @@ import com.bot.game.model.Unidad;
 import com.bot.game.service.UnidadService;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 @RequiredArgsConstructor
+@Slf4j
 public class CreateUnitCommand implements ICommand
 {
     private final UnidadService _unidadService;
@@ -32,13 +34,13 @@ public class CreateUnitCommand implements ICommand
         String discordId = event.getAuthor().getId();
 
         String nombre = args[1];
-        Integer nivel = paseInteger(args[2], event);
+        Optional<Integer> nivel = paseInteger(args[2], event);
 
-        if (nivel == null)
+        if (nivel.isEmpty())
             return;
 
         crearUnidad(
-            nombre, discordId, nivel, event);
+            nombre, discordId, nivel.get(), event);
     }
 
     private void crearUnidad(String nombre, String discordId, Integer nivel, MessageReceivedEvent event) 
@@ -59,7 +61,7 @@ public class CreateUnitCommand implements ICommand
         } 
         catch (Exception e) 
         {
-            e.printStackTrace();
+            log.error("Error al crear unidad", e);
             event.getChannel().sendMessage("Ocurrió un error: " + e.toString()).queue();
         }
     }
@@ -70,19 +72,23 @@ public class CreateUnitCommand implements ICommand
         event.getChannel().sendMessage("Formato: !create <nombre> <nivel>").queue();
     }
 
-    private Integer paseInteger(String number, MessageReceivedEvent event)
+    private Optional<Integer> paseInteger(String number, MessageReceivedEvent event)
     {
         try
         {
-            return Integer.parseInt(number);
+            return Optional.of(Integer.parseInt(number));
         }
         catch (NumberFormatException e)
         {
             event.getChannel()
                 .sendMessage("El valor que ingresaste no es un número.")
                 .queue();
+                
             help(event);
-            return null;
+
+            log.error("Error al obtener el valor númerico");
+
+            return Optional.empty();
         }
     }
 }

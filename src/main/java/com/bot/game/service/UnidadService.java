@@ -11,10 +11,12 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import lombok.extern.slf4j.Slf4j;
 import okhttp3.HttpUrl;
 import okhttp3.OkHttpClient;
 import okhttp3.Response;
 
+@Slf4j
 public class UnidadService extends ApiService<Unidad>
 {
     public UnidadService()
@@ -48,14 +50,17 @@ public class UnidadService extends ApiService<Unidad>
             try (Response response = post(httpUrl)) 
             {
                 if (!response.isSuccessful())
+                {
+                    log.warn("Error al crear unidad: {}", response.code());
                     return Optional.empty();
+                }
 
                 return Optional.of(read(response, new TypeReference<Unidad>() {}));
             }
         } 
         catch (IOException e) 
         {
-            e.printStackTrace();
+            log.error("Error al crear unidad", e);
             return Optional.empty();
         }
     }
@@ -70,15 +75,18 @@ public class UnidadService extends ApiService<Unidad>
             
             try (Response response = get(urlGet)) 
             {
-                if (!response.isSuccessful()) 
+                if (!response.isSuccessful())
+                {
+                    log.warn("Error al obtener unidades: {}", response.code());
                     return Collections.emptyList();
+                }
 
                 return read(response, new TypeReference<List<Unidad>>() {});
             }
         } 
         catch (IOException e) 
         {
-            e.printStackTrace();
+            log.error("Error al obtener unidades", e);
             return Collections.emptyList();
         }
     }
@@ -95,7 +103,10 @@ public class UnidadService extends ApiService<Unidad>
             try (Response response = delete(urlDelete))
             {
                 if (!response.isSuccessful())
+                {
+                    log.warn("Error al eliminar unidades: {}", response.code());
                     return Optional.empty();
+                }
 
                 return Optional.of(
                     Long.parseLong(response.body().string().trim()));
@@ -103,7 +114,7 @@ public class UnidadService extends ApiService<Unidad>
         } 
         catch (Exception e) 
         {
-            e.printStackTrace();
+            log.error("Error al eliminar unidades", e);
             return Optional.empty();
         }
     }
