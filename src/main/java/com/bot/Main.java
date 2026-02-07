@@ -9,7 +9,7 @@ import com.bot.commands.gamecommands.DeleteUnitByDiscordIdCommand;
 import com.bot.commands.gamecommands.UnitListCommand;
 import com.bot.dispatcher.CommandDispatcher;
 import com.bot.game.service.UnidadService;
-import com.bot.hooks.PersistMessageHook;
+import com.bot.hooks.UpdateMessageStatsHook;
 import com.bot.listeners.MemberJoinedtoGuildListener;
 import com.bot.listeners.MessageReceiveListener;
 
@@ -33,7 +33,7 @@ public class Main
                 .register(new DeleteUnitByDiscordIdCommand(unidadService))
                 .register(new SyncUserCommand(ownerId, adminService));
 
-        dispatcher.registerMessageHook(new PersistMessageHook(adminService));
+        dispatcher.registerMessageHook(new UpdateMessageStatsHook(adminService));
 
         List<ListenerAdapter> listeners = List.of(
             MessageReceiveListener.builder()
@@ -45,5 +45,5 @@ public class Main
         Bot bot = new Bot(token, listeners);
 
         bot.start();
-    }
+     }
 }

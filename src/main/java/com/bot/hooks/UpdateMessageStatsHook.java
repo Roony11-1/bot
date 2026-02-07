@@ -11,7 +11,7 @@ import java.time.Instant;
 
 @RequiredArgsConstructor
 @Slf4j
-public class PersistMessageHook implements CommandDispatcher.IMessageHook
+public class UpdateMessageStatsHook implements CommandDispatcher.IMessageHook
 {
     private final AdminService _adminService;
 
