@@ -12,6 +12,8 @@ import com.bot.game.service.UnidadService;
 import com.bot.hooks.UpdateMessageStatsHook;
 import com.bot.listeners.MemberJoinedtoGuildListener;
 import com.bot.listeners.MessageReceiveListener;
+import com.bot.service.MemberRoleService;
+import com.bot.service.MemberSyncService;
 
 import io.github.cdimascio.dotenv.Dotenv;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
@@ -27,6 +29,9 @@ public class Main
         UnidadService unidadService = new UnidadService();
         AdminService adminService = new AdminService();
 
+        MemberRoleService memberRoleService = new MemberRoleService();
+        MemberSyncService memberSyncService = new MemberSyncService(adminService);
+
         CommandDispatcher dispatcher = new CommandDispatcher()
                 .register(new CreateUnitCommand(unidadService))
                 .register(new UnitListCommand(unidadService))
@@ -39,8 +44,9 @@ public class Main
             MessageReceiveListener.builder()
                 ._commandDispatcher(dispatcher)
                 .build(),
-            new MemberJoinedtoGuildListener(adminService)
-        );
+            new MemberJoinedtoGuildListener(
+                memberSyncService,
+                memberRoleService));
 
         Bot bot = new Bot(token, listeners);
 
