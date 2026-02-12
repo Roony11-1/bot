@@ -11,17 +11,17 @@ public class Unidad
     private String discordId;
     private String nombre;
     private int nivel;
+    private Class clase;
 
     @Override
     public String toString()
     {
         StringBuilder text = new StringBuilder();
 
-        return text.append("-- Nombre: ")
-            .append(nombre)
-            .append("\n-- Nivel: ")
-            .append(nivel)
-            .append("\n")
-            .toString();
+        text.append("-- Nombre: ").append(nombre).append("\n")
+            .append("-- Nivel: ").append(nivel).append("\n")
+            .append(this.clase.toString());
+
+        return text.toString();
     }
 }

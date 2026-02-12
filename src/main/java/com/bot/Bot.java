@@ -15,6 +15,7 @@ public class Bot
 {
     private final String _token;
     private final List<ListenerAdapter> _listeners;
+    private final EnumSet<GatewayIntent> _intents;
 
     public void start()
     {
@@ -25,10 +26,7 @@ public class Bot
         {
             JDABuilder builder = JDABuilder.createDefault(
                 _token,
-                EnumSet.of(
-                    GatewayIntent.GUILD_MESSAGES,
-                    GatewayIntent.MESSAGE_CONTENT,
-                    GatewayIntent.GUILD_MEMBERS));
+                _intents);
 
             _listeners.forEach(listener -> builder.addEventListeners(listener));
 

@@ -1,8 +1,7 @@
 package com.bot;
 
-import java.util.List;
-
 import com.bot.admin.service.AdminService;
+import com.bot.builders.BotBuilder;
 import com.bot.commands.admincommands.SyncUserCommand;
 import com.bot.commands.gamecommands.CreateUnitCommand;
 import com.bot.commands.gamecommands.DeleteUnitByDiscordIdCommand;
@@ -16,7 +15,7 @@ import com.bot.service.MemberRoleService;
 import com.bot.service.MemberSyncService;
 
 import io.github.cdimascio.dotenv.Dotenv;
-import net.dv8tion.jda.api.hooks.ListenerAdapter;
+import net.dv8tion.jda.api.requests.GatewayIntent;
 
 public class Main 
 {
@@ -40,16 +39,26 @@ public class Main
 
         dispatcher.registerMessageHook(new UpdateMessageStatsHook(adminService));
 
-        List<ListenerAdapter> listeners = List.of(
-            MessageReceiveListener.builder()
-                ._commandDispatcher(dispatcher)
-                .build(),
-            new MemberJoinedtoGuildListener(
-                memberSyncService,
-                memberRoleService));
-
-        Bot bot = new Bot(token, listeners);
+        Bot bot = new BotBuilder()
+                .setToken(token)
+                .addListener(
+                    new MessageReceiveListener(
+                        dispatcher
+                    )
+                )
+                .addListener(
+                    new MemberJoinedtoGuildListener(
+                        memberSyncService,
+                        memberRoleService
+                    )
+                )
+                .enableIntents(
+                    GatewayIntent.GUILD_MESSAGES,
+                    GatewayIntent.MESSAGE_CONTENT,
+                    GatewayIntent.GUILD_MEMBERS
+                )
+                .build();
 
         bot.start();
-     }
+    }
 }

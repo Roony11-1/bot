@@ -62,7 +62,7 @@ public class CreateUnitCommand implements ICommand
         catch (Exception e) 
         {
             log.error("Error al crear unidad", e);
-            event.getChannel().sendMessage("Ocurrió un error: " + e.toString()).queue();
+            event.getChannel().sendMessage("Ocurrió un error al crear la Unidad!").queue();
         }
     }
 
