@@ -1,10 +1,11 @@
 package com.bot.commands.gamecommands;
 
+import java.awt.Color;
 import java.util.Optional;
 
 import com.bot.commands.ICommand;
-import com.bot.game.model.Unidad;
 import com.bot.game.service.UnidadService;
+import com.bot.service.UnidadEmbedFactory;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -15,6 +16,7 @@ import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 public class CreateUnitCommand implements ICommand
 {
     private final UnidadService _unidadService;
+    private final UnidadEmbedFactory _unidadEmbedFactory;
 
     @Override
     public String name() 
@@ -45,24 +47,22 @@ public class CreateUnitCommand implements ICommand
 
     private void crearUnidad(String nombre, String discordId, Integer nivel, MessageReceivedEvent event) 
     {
+        var channel = event.getChannel();
+
         try 
         {
-            Optional<Unidad> unidad = _unidadService.createUnit(discordId, nombre, nivel);
-
-            StringBuilder message = new StringBuilder();
-
-            if (unidad.isPresent()) 
-            {
-                message.append("Unidad Creada Exitosamente")
-                .append("\n")
-                .append(unidad.get().toString());
-                event.getChannel().sendMessage(message.toString()).queue();
-            }
+            _unidadService.createUnit(discordId, nombre, nivel)
+                .ifPresentOrElse(
+                    unidad -> channel.sendMessageEmbeds(
+                            _unidadEmbedFactory.mostrarUnidad(unidad, Color.GREEN)
+                        ).queue(),
+                    () -> channel.sendMessage("No se pudo crear la unidad.").queue()
+                );
         } 
         catch (Exception e) 
         {
             log.error("Error al crear unidad", e);
-            event.getChannel().sendMessage("Ocurrió un error al crear la Unidad!").queue();
+            channel.sendMessage("Ocurrió un error al crear la Unidad!").queue();
         }
     }
 

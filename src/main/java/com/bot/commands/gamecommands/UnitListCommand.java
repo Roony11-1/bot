@@ -1,10 +1,12 @@
 package com.bot.commands.gamecommands;
 
+import java.awt.Color;
 import java.util.List;
 
 import com.bot.commands.ICommand;
 import com.bot.game.model.Unidad;
 import com.bot.game.service.UnidadService;
+import com.bot.service.UnidadEmbedFactory;
 
 import lombok.RequiredArgsConstructor;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
@@ -13,6 +15,7 @@ import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 public class UnitListCommand implements ICommand
 {
     private final UnidadService _unidadService;
+    private final UnidadEmbedFactory _unidadEmbedFactory;
 
     @Override
     public String name() 
@@ -47,18 +50,16 @@ public class UnitListCommand implements ICommand
     {
         List<Unidad> unidades = _unidadService.findByDiscordId(discordId);
 
-
-        StringBuilder message = new StringBuilder();
-
         if (unidades.isEmpty()) 
         {
-            message.append("No tienes unidades creadas.");
-            event.getChannel().sendMessage(message.toString()).queue();
+            event.getChannel().sendMessage("No tienes unidades creadas.").queue();
             return;
         }
 
-        unidades.forEach(unidad -> message.append(unidad.toString()).append("\n"));
-        
-        event.getChannel().sendMessage(message.toString()).queue();
+        String owner = event.getAuthor().getGlobalName();
+
+        event.getChannel().sendMessageEmbeds(
+            _unidadEmbedFactory.mostrarUnidades(owner, unidades, Color.CYAN)
+        ).queue();
     }
 }

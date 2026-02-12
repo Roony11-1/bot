@@ -11,6 +11,7 @@ import com.bot.game.service.UnidadService;
 import com.bot.hooks.UpdateMessageStatsHook;
 import com.bot.listeners.MemberJoinedtoGuildListener;
 import com.bot.listeners.MessageReceiveListener;
+import com.bot.service.UnidadEmbedFactory;
 import com.bot.service.MemberRoleService;
 import com.bot.service.MemberSyncService;
 
@@ -25,15 +26,19 @@ public class Main
         String token = dotenv.get("DISCORD_TOKEN");
         String ownerId = dotenv.get("DISCORD_OWNER_ID");
 
+        System.setProperty("jdk.tls.client.protocols", "TLSv1.2");
+
         UnidadService unidadService = new UnidadService();
         AdminService adminService = new AdminService();
 
         MemberRoleService memberRoleService = new MemberRoleService();
         MemberSyncService memberSyncService = new MemberSyncService(adminService);
 
+        UnidadEmbedFactory embedService = new UnidadEmbedFactory();
+
         CommandDispatcher dispatcher = new CommandDispatcher()
-                .register(new CreateUnitCommand(unidadService))
-                .register(new UnitListCommand(unidadService))
+                .register(new CreateUnitCommand(unidadService, embedService))
+                .register(new UnitListCommand(unidadService, embedService))
                 .register(new DeleteUnitByDiscordIdCommand(unidadService))
                 .register(new SyncUserCommand(ownerId, adminService));
 
