@@ -36,7 +36,7 @@ public class UnidadService extends ApiService<Unidad>
         return "unidad";
     }
     
-    public Optional<Unidad> createUnit(String discordId, String name, int level)
+    public Optional<Unidad> createUnit(String discordId, String name)
     {
         try 
         {
@@ -44,7 +44,6 @@ public class UnidadService extends ApiService<Unidad>
                 .addPathSegment("discord")
                 .addQueryParameter("discordId", discordId)
                 .addQueryParameter("nombre", name)
-                .addQueryParameter("nivel", String.valueOf(level))
                 .build();
 
             try (Response response = post(httpUrl)) 

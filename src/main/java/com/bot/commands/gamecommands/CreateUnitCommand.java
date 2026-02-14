@@ -27,7 +27,7 @@ public class CreateUnitCommand implements ICommand
     @Override
     public void execute(String[] args, MessageReceivedEvent event) 
     {
-        if (args.length < 3 || args[1].equalsIgnoreCase("--help"))
+        if (args[1].equalsIgnoreCase("--help"))
         {
             help(event);
             return;
@@ -36,22 +36,18 @@ public class CreateUnitCommand implements ICommand
         String discordId = event.getAuthor().getId();
 
         String nombre = args[1];
-        Optional<Integer> nivel = paseInteger(args[2], event);
-
-        if (nivel.isEmpty())
-            return;
 
         crearUnidad(
-            nombre, discordId, nivel.get(), event);
+            nombre, discordId, event);
     }
 
-    private void crearUnidad(String nombre, String discordId, Integer nivel, MessageReceivedEvent event) 
+    private void crearUnidad(String nombre, String discordId, MessageReceivedEvent event) 
     {
         var channel = event.getChannel();
 
         try 
         {
-            _unidadService.createUnit(discordId, nombre, nivel)
+            _unidadService.createUnit(discordId, nombre)
                 .ifPresentOrElse(
                     unidad -> channel.sendMessageEmbeds(
                             _unidadEmbedFactory.mostrarUnidad(unidad, Color.GREEN)
@@ -69,26 +65,6 @@ public class CreateUnitCommand implements ICommand
     @Override
     public void help(MessageReceivedEvent event) 
     {
-        event.getChannel().sendMessage("Formato: !create <nombre> <nivel>").queue();
-    }
-
-    private Optional<Integer> paseInteger(String number, MessageReceivedEvent event)
-    {
-        try
-        {
-            return Optional.of(Integer.parseInt(number));
-        }
-        catch (NumberFormatException e)
-        {
-            event.getChannel()
-                .sendMessage("El valor que ingresaste no es un número.")
-                .queue();
-                
-            help(event);
-
-            log.error("Error al obtener el valor númerico");
-
-            return Optional.empty();
-        }
+        event.getChannel().sendMessage("Formato: !create <nombre>").queue();
     }
 }
