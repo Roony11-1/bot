@@ -12,6 +12,7 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import lombok.extern.slf4j.Slf4j;
+import net.dv8tion.jda.api.interactions.InteractionHook;
 import okhttp3.HttpUrl;
 import okhttp3.OkHttpClient;
 import okhttp3.Response;
@@ -36,7 +37,7 @@ public class UnidadService extends ApiService<Unidad>
         return "unidad";
     }
     
-    public Optional<Unidad> createUnit(String discordId, String name)
+    public Optional<Unidad> createUnit(String discordId, String claseId, String name)
     {
         try 
         {
@@ -44,6 +45,7 @@ public class UnidadService extends ApiService<Unidad>
                 .addPathSegment("discord")
                 .addQueryParameter("discordId", discordId)
                 .addQueryParameter("nombre", name)
+                .addQueryParameter("claseId", claseId)
                 .build();
 
             try (Response response = post(httpUrl)) 

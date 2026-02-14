@@ -7,11 +7,15 @@ import com.bot.commands.gamecommands.CreateUnitCommand;
 import com.bot.commands.gamecommands.DeleteUnitByDiscordIdCommand;
 import com.bot.commands.gamecommands.UnitListCommand;
 import com.bot.dispatcher.CommandDispatcher;
+import com.bot.dispatcher.InteractionDispatcher;
+import com.bot.factory.StringSelectMenuFactory;
+import com.bot.factory.UnidadEmbedFactory;
 import com.bot.game.service.UnidadService;
 import com.bot.hooks.UpdateMessageStatsHook;
+import com.bot.interactions.CreateUnitSelectHandler;
 import com.bot.listeners.MemberJoinedtoGuildListener;
 import com.bot.listeners.MessageReceiveListener;
-import com.bot.service.UnidadEmbedFactory;
+import com.bot.listeners.StringSelectInteractionListener;
 import com.bot.service.MemberRoleService;
 import com.bot.service.MemberSyncService;
 
@@ -34,28 +38,33 @@ public class Main
         MemberRoleService memberRoleService = new MemberRoleService();
         MemberSyncService memberSyncService = new MemberSyncService(adminService);
 
-        UnidadEmbedFactory embedService = new UnidadEmbedFactory();
+        UnidadEmbedFactory unidadEmbedFactory = new UnidadEmbedFactory();
+        StringSelectMenuFactory stringSelectMenuFactory = new StringSelectMenuFactory();
 
         CommandDispatcher dispatcher = new CommandDispatcher()
-                .register(new CreateUnitCommand(unidadService, embedService))
-                .register(new UnitListCommand(unidadService, embedService))
+                .register(new CreateUnitCommand(stringSelectMenuFactory))
+                .register(new UnitListCommand(unidadService, unidadEmbedFactory))
                 .register(new DeleteUnitByDiscordIdCommand(unidadService))
                 .register(new SyncUserCommand(ownerId, adminService));
 
         dispatcher.registerMessageHook(new UpdateMessageStatsHook(adminService));
 
+        InteractionDispatcher iDispatcher = new InteractionDispatcher()
+            .register(new CreateUnitSelectHandler(unidadEmbedFactory, unidadService));
+
         Bot bot = new BotBuilder()
                 .setToken(token)
                 .addListener(
-                    new MessageReceiveListener(
-                        dispatcher
-                    )
+                    new MessageReceiveListener(dispatcher)
                 )
                 .addListener(
                     new MemberJoinedtoGuildListener(
                         memberSyncService,
                         memberRoleService
                     )
+                )
+                .addListener(
+                    new StringSelectInteractionListener(iDispatcher)
                 )
                 .enableIntents(
                     GatewayIntent.GUILD_MESSAGES,

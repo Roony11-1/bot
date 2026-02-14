@@ -28,11 +28,20 @@ public class CommandDispatcher
     public void execute(MessageReceivedEvent event) 
     {
         String content = event.getMessage().getContentRaw();
-        String[] parts = content.split(" ");
+        System.out.println("RAW CONTENT: [" + content + "]");
 
-        // Ejecutar comando si existe
+        String trimmed = content.trim();
+        System.out.println("TRIMMED: [" + trimmed + "]");
+
+        String[] parts = trimmed.split("\\s+");
+        System.out.println("PARTS[0]: [" + parts[0] + "]");
+
+        System.out.println("COMANDOS REGISTRADOS: " + _commands.keySet());
+
         ICommand command = _commands.get(parts[0]);
-        
+
+        System.out.println("COMANDO ENCONTRADO? " + (command != null));
+
         if (command != null) 
             command.execute(parts, event);
 

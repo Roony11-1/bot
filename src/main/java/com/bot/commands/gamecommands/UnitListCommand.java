@@ -4,9 +4,9 @@ import java.awt.Color;
 import java.util.List;
 
 import com.bot.commands.ICommand;
+import com.bot.factory.UnidadEmbedFactory;
 import com.bot.game.model.Unidad;
 import com.bot.game.service.UnidadService;
-import com.bot.service.UnidadEmbedFactory;
 
 import lombok.RequiredArgsConstructor;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;

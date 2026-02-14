@@ -1,4 +1,4 @@
-package com.bot.service;
+package com.bot.factory;
 
 import java.awt.Color;
 import java.util.List;
