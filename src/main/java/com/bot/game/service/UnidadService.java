@@ -12,7 +12,6 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import lombok.extern.slf4j.Slf4j;
-import net.dv8tion.jda.api.interactions.InteractionHook;
 import okhttp3.HttpUrl;
 import okhttp3.OkHttpClient;
 import okhttp3.Response;
