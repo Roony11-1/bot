@@ -29,14 +29,14 @@ public class DeleteUnitByDiscordIdCommand implements ICommand
     }
 
     @Override
+    public int minArgs() 
+    {
+        return 1;
+    }
+
+    @Override
     public void execute(String[] args, MessageReceivedEvent event)
     {
-        if (args.length > 1 && args[1].equalsIgnoreCase("--help"))
-        {
-            help(event);
-            return;
-        }
-        
         borrarUnidades(event.getAuthor().getId(), event);
     }
 

@@ -20,9 +20,15 @@ public class InteractionDispatcher
 
     public void execute(StringSelectInteractionEvent event)
     {
-        IInteractionHandler interaction = interactions.get(event.getComponentId());
+        String componentId = event.getComponentId();
 
-        if (interaction != null)
-            interaction.handle(event);
+        for (Map.Entry<String, IInteractionHandler> entry : interactions.entrySet())
+        {
+            if (componentId.startsWith(entry.getKey()))
+            {
+                entry.getValue().handle(event);
+                return;
+            }
+        }
     }
 }

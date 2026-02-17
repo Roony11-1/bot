@@ -26,15 +26,18 @@ public class CreateUnitSelectHandler implements IInteractionHandler
     @Override
     public void handle(StringSelectInteractionEvent event) 
     {
+        String[] parts = event.getComponentId().split(":");
+
+        String name = parts[1];
         String selectedClass = event.getValues().get(0);
 
-        event.deferReply(true).queue(); // respuesta privada
-
-        int random = ThreadLocalRandom.current().nextInt(1, 1000);
-        String name = "Unidad " + random;
+        event.deferReply(true).queue();
 
         Unidad unidad = _unidadService
-                .createUnit(event.getUser().getId(), selectedClass, name)
+                .createUnit(
+                    event.getUser().getId(), 
+                    selectedClass, 
+                    name)
                 .orElseThrow();
 
         MessageEmbed embed = _unidadEmbedFactory

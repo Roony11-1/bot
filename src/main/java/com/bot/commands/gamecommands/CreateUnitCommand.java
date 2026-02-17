@@ -1,5 +1,7 @@
 package com.bot.commands.gamecommands;
 
+import java.util.Arrays;
+
 import com.bot.commands.ICommand;
 import com.bot.factory.StringSelectMenuFactory;
 
@@ -20,15 +22,17 @@ public class CreateUnitCommand implements ICommand
     }
 
     @Override
+    public int minArgs() 
+    {
+        return 2;
+    }
+
+    @Override
     public void execute(String[] args, MessageReceivedEvent event) 
     {
-        if (args.length > 1 && args[1].equalsIgnoreCase("--help"))
-        {
-            help(event);
-            return;
-        }
+        String name = String.join(" ", Arrays.copyOfRange(args, 1, args.length));
 
-        var menu = _stringSelectMenuFactory.createUnitMenu();
+        var menu = _stringSelectMenuFactory.createUnitMenu(name);
 
         event.getChannel()
             .sendMessage("Elige la clase de tu unidad:")
@@ -39,6 +43,6 @@ public class CreateUnitCommand implements ICommand
     @Override
     public void help(MessageReceivedEvent event) 
     {
-        event.getChannel().sendMessage("Formato: !create").queue();
+        event.getChannel().sendMessage("Formato: !create <name>").queue();
     }
 }
