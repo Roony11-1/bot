@@ -22,6 +22,12 @@ public class SyncUserCommand implements ICommand
     private final AdminService _adminService;
 
     @Override
+    public int minArgs() 
+    {
+            return 1;
+    }
+
+    @Override
     public void execute(String[] args, MessageReceivedEvent event) 
     {
         if (!event.isFromGuild())
